@@ -1,6 +1,6 @@
 package com.yat3s.facedetector;
 
-import android.hardware.camera2.params.Face;
+import android.util.Size;
 
 /**
  * Created by Yat3s on 22/08/2017.
@@ -8,6 +8,5 @@ import android.hardware.camera2.params.Face;
  * GitHub: https://github.com/yat3s
  */
 public interface PreviewCallback {
-
-    void onPreviewFrame(byte[] data, int faceDetectMode, Face[] faces);
+    void onPreviewFrame(byte[] data, Size frameSize, int format, int faceDetectMode, Face[] faces);
 }

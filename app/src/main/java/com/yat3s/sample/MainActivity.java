@@ -1,11 +1,11 @@
 package com.yat3s.sample;
 
-import android.hardware.camera2.params.Face;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.util.Size;
 
+import com.yat3s.facedetector.Face;
 import com.yat3s.facedetector.PreviewCallback;
 import com.yat3s.facedetector.PreviewFragment;
 
@@ -28,7 +28,8 @@ public class MainActivity extends AppCompatActivity {
         }
         mPreviewFragment.setPreviewCallback(new PreviewCallback() {
             @Override
-            public void onPreviewFrame(byte[] data, int faceDetectMode, Face[] faces) {
+            public void onPreviewFrame(byte[] data, Size frameSize, int format, int faceDetectMode,
+                                       Face[] faces) {
                 if (null != faces) {
                     Log.d(TAG, "onPreviewFrame: " + data.length + ", mode: " + faceDetectMode + ", face: " + faces.length);
                 }

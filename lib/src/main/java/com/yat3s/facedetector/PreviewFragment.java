@@ -1,4 +1,4 @@
-/*
+package com.yat3s.facedetector;/*
  * Copyright 2014 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-package com.yat3s.facedetector;
 
 import android.Manifest;
 import android.app.Activity;
@@ -40,7 +39,6 @@ import android.hardware.camera2.CameraMetadata;
 import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.CaptureResult;
 import android.hardware.camera2.TotalCaptureResult;
-import android.hardware.camera2.params.Face;
 import android.hardware.camera2.params.StreamConfigurationMap;
 import android.media.Image;
 import android.media.ImageReader;
@@ -249,12 +247,17 @@ public class PreviewFragment extends Fragment implements FragmentCompat.OnReques
     /**
      * Current frame faces.
      */
-    private Face[] mFaces;
+    private com.yat3s.facedetector.Face[] mFaces;
 
     /**
      * Current support face detect mode.
      */
     private int mMode;
+
+    /**
+     * Current frame image format.
+     */
+    private int mImageFormat = ImageFormat.YUV_420_888;
 
     /**
      * This a callback object for the {@link ImageReader}. "onImageAvailable" will be called when a
@@ -270,7 +273,7 @@ public class PreviewFragment extends Fragment implements FragmentCompat.OnReques
             byte[] bytes = new byte[buffer.remaining()];
             buffer.get(bytes);
             if (null != mPreviewCallback) {
-                mPreviewCallback.onPreviewFrame(bytes, mMode, mFaces);
+                mPreviewCallback.onPreviewFrame(bytes, mImageFrameSize, mImageFormat, mMode, mFaces);
             }
             mImage.close();
         }
@@ -316,9 +319,15 @@ public class PreviewFragment extends Fragment implements FragmentCompat.OnReques
 
         private void process(CaptureResult result) {
             Integer mode = result.get(CaptureResult.STATISTICS_FACE_DETECT_MODE);
-            Face[] faces = result.get(CaptureResult.STATISTICS_FACES);
+            android.hardware.camera2.params.Face[] faces = result.get(CaptureResult.STATISTICS_FACES);
             if (null != mode && null != faces) {
-                mFaces = faces;
+                mFaces = new com.yat3s.facedetector.Face[faces.length];
+                for (int idx = 0; idx < faces.length; idx++) {
+                    android.hardware.camera2.params.Face face = faces[idx];
+                    mFaces[idx] = new Face(face.getBounds(),
+                            face.getScore(), face.getId(), face.getLeftEyePosition(),
+                            face.getRightEyePosition(), face.getMouthPosition());
+                }
                 mMode = mode;
             }
 
@@ -393,6 +402,10 @@ public class PreviewFragment extends Fragment implements FragmentCompat.OnReques
 
     public void setImageFrameSize(Size imageFrameSize) {
         mImageFrameSize = imageFrameSize;
+    }
+
+    public void setImageFormat(int imageFormat) {
+        mImageFormat = imageFormat;
     }
 
     /**
@@ -560,7 +573,7 @@ public class PreviewFragment extends Fragment implements FragmentCompat.OnReques
 
                 Log.d(TAG, "setUpCameraOutputs: " + size.getWidth() + "," + size.getHeight());
                 mImageReader = ImageReader.newInstance(size.getWidth(), size.getHeight(),
-                        ImageFormat.YUV_420_888, /*maxImages*/1);
+                        mImageFormat, /*maxImages*/1);
                 mImageReader.setOnImageAvailableListener(
                         mOnImageAvailableListener, mBackgroundHandler);
 
