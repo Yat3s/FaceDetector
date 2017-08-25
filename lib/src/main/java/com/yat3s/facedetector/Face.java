@@ -112,7 +112,7 @@ public class Face {
         mMouth = mouthPosition;
 
         mFaceRectPaint = new Paint();
-        mFaceRectPaint.setColor(Color.WHITE);
+        mFaceRectPaint.setColor(Color.parseColor("#66FFFFFF"));
         mFaceRectPaint.setStyle(Paint.Style.STROKE);
         mFaceRectPaint.setStrokeWidth(FACE_RECT_STROKE_WIDTH);
         mScaledBound = mBounds;
@@ -250,7 +250,8 @@ public class Face {
 
 
     public void draw(Canvas canvas) {
-        canvas.drawRect(mScaledBound, mFaceRectPaint);
+        int radius = Math.max(mScaledBound.width(), mScaledBound.height()) / 2;
+        canvas.drawCircle(mScaledBound.centerX(), mScaledBound.centerY(), radius, mFaceRectPaint);
     }
 
     public void scale(float widthRatio, float heightRatio) {
